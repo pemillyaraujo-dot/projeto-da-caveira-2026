@@ -1,0 +1,50 @@
+# Unity - arquivos e pastas gerados automaticamente
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# Arquivos gerados pelo Unity
+MemoryCaptures/
+Recordings/
+.vs/
+.gradle/
+
+# IDEs e editores
+.idea/
+.vscode/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svclog
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.tmp_proj
+
+# Unity Crash Reports
+sysinfo.txt
+mono_crash.*
+
+# Builds e arquivos compactados gerados localmente
+*.apk
+*.aab
+*.app
+*.unitypackage
+*.zip
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Git
+*.orig
