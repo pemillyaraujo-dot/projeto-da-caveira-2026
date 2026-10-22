@@ -22,6 +22,9 @@ public class SkeletonPlayer : MonoBehaviour
         controller = GetComponent<CharacterController>();
     }
 
+
+
+
     void Update()
     {
         // Verifica teclas
