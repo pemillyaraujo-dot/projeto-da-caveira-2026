@@ -1,5 +1,7 @@
+
 using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class SkeletonPlayer : MonoBehaviour
 {
     [Header("Movimento")]
@@ -8,59 +10,94 @@ public class SkeletonPlayer : MonoBehaviour
     [SerializeField] private float velocidadeAndarTras = 1.5f;
     [SerializeField] private float velocidadeRotacao = 120f;
 
-    [Header("Pulo")]
+    [Header("Pulo e Gravidade")]
     [SerializeField] private float forcaPulo = 5f;
     [SerializeField] private float gravidade = -9.81f;
 
+    [Header("Ataque")]
+    [SerializeField] private KeyCode teclaAtaque = KeyCode.Mouse0;
+
     private Animator animator;
     private CharacterController controller;
+
     private Vector3 velocidadeVertical;
+    private Vector3 movimento;
+
+    private bool estaIndoFrente;
+    private bool estaIndoTras;
+    private bool estaMovendo;
+    private bool estaCorrendo;
+    private bool estaNoChao;
+
+    private float velocidadeAtual;
+    private float sentido = 1f;
 
     void Start()
     {
-        animator = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
+        animator = GetComponentInChildren<Animator>();
+
+        if (animator == null)
+        {
+            Debug.LogError(
+                "Animator não encontrado na caveira ou em seus filhos."
+            );
+            enabled = false;
+            return;
+        }
     }
-
-
-
 
     void Update()
     {
-        // Verifica teclas
-        bool estaIndoFrente = Input.GetKey(KeyCode.W);
-        bool estaIndoTras = Input.GetKey(KeyCode.S) && !estaIndoFrente;
-        bool estaMovendo = estaIndoFrente || estaIndoTras;
-        bool estaCorrendo =
-            estaIndoFrente &&
+        Movimento();
+        Rotacao();
+        MovimentoHorizontal();
+        PuloEGravidade();
+        Animacoes();
+        Ataque();
+    }
+
+    void Movimento()
+    {
+        estaIndoFrente = Input.GetKey(KeyCode.W);
+
+        estaIndoTras = Input.GetKey(KeyCode.S)
+                       && !estaIndoFrente;
+
+        estaMovendo = estaIndoFrente || estaIndoTras;
+
+        estaCorrendo = estaIndoFrente &&
             (Input.GetKey(KeyCode.LeftShift) ||
              Input.GetKey(KeyCode.RightShift));
+    }
 
-        // -----------------------------
-        // ROTAÇÃO
-        // -----------------------------
+    void Rotacao()
+    {
         float direcaoRotacao = 0f;
+
         if (Input.GetKey(KeyCode.A))
-            direcaoRotacao = -1f;
+            direcaoRotacao -= 1f;
+
         if (Input.GetKey(KeyCode.D))
-            direcaoRotacao = 1f;
+            direcaoRotacao += 1f;
 
         transform.Rotate(
             0f,
             direcaoRotacao * velocidadeRotacao * Time.deltaTime,
             0f
         );
+    }
 
-        // -----------------------------
-        // MOVIMENTO HORIZONTAL
-        // -----------------------------
-        float velocidadeAtual = 0f;
-        float sentido = 1f;
+    void MovimentoHorizontal()
+    {
+        velocidadeAtual = 0f;
+        sentido = 1f;
 
         if (estaIndoFrente)
         {
-            velocidadeAtual = estaCorrendo ? velocidadeCorrer : velocidadeAndar;
-            sentido = 1f;
+            velocidadeAtual = estaCorrendo
+                ? velocidadeCorrer
+                : velocidadeAndar;
         }
         else if (estaIndoTras)
         {
@@ -68,36 +105,54 @@ public class SkeletonPlayer : MonoBehaviour
             sentido = -1f;
         }
 
-        Vector3 movimento = transform.forward * velocidadeAtual * sentido;
+        movimento = transform.forward * velocidadeAtual * sentido;
+    }
 
-        // -----------------------------
-        // PULO E GRAVIDADE
-        // -----------------------------
-        bool estaNoChao = controller.isGrounded;
+    void PuloEGravidade()
+    {
+        estaNoChao = controller.isGrounded;
 
-        if (estaNoChao && velocidadeVertical.y < 0)
+        if (estaNoChao && velocidadeVertical.y < 0f)
         {
-            velocidadeVertical.y = -2f; // pequena força pra manter grudado no chão
+            velocidadeVertical.y = -2f;
         }
 
         if (estaNoChao && Input.GetKeyDown(KeyCode.Space))
         {
-            velocidadeVertical.y = Mathf.Sqrt(forcaPulo * -2f * gravidade);
-            animator.SetTrigger("jump"); // crie esse trigger no Animator
+            velocidadeVertical.y = Mathf.Sqrt(
+                forcaPulo * -2f * gravidade
+            );
+
+            animator.SetTrigger("jump");
         }
 
         velocidadeVertical.y += gravidade * Time.deltaTime;
 
-        // Move horizontal + vertical juntos
-        Vector3 movimentoFinal = (movimento + velocidadeVertical);
+        Vector3 movimentoFinal = movimento;
+        movimentoFinal.y = velocidadeVertical.y;
+
         controller.Move(movimentoFinal * Time.deltaTime);
 
-        // -----------------------------
-        // ANIMAÇÕES
-        // -----------------------------
+        // Atualiza o estado do chão após o movimento.
+        estaNoChao = controller.isGrounded;
+    }
+
+    void Ataque()
+    {
+        if (Input.GetKeyDown(teclaAtaque))
+        {
+            animator.SetTrigger("Attack");
+        }
+    }
+
+    void Animacoes()
+    {
         animator.SetBool("isMoving", estaMovendo);
         animator.SetBool("isRunning", estaCorrendo);
-        animator.SetFloat("direcaoMovimento", estaMovendo ? sentido : 1f);
-        animator.SetBool("isGrounded", estaNoChao); // útil pra transição de volta ao chão
+        animator.SetFloat(
+            "direcaoMovimento",
+            estaMovendo ? sentido : 1f
+        );
+        animator.SetBool("isGrounded", estaNoChao);
     }
 }

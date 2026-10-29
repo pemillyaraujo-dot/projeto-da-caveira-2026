@@ -2492,8 +2492,9 @@ MonoBehaviour:
   velocidadeCorrer: 4
   velocidadeAndarTras: 1.5
   velocidadeRotacao: 120
-  forcaPulo: 0.35
+  forcaPulo: 4
   gravidade: -5
+  teclaAtaque: 323
 --- !u!4 &51670102 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2199628841774520173, guid: 61b3e3801d56a3f429556c96ea2f07d6, type: 3}
@@ -60024,7 +60025,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2199628841774520173, guid: 61b3e3801d56a3f429556c96ea2f07d6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.5999909
+      value: -0.005
       objectReference: {fileID: 0}
     - target: {fileID: 2199628841774520173, guid: 61b3e3801d56a3f429556c96ea2f07d6, type: 3}
       propertyPath: m_LocalPosition.z
